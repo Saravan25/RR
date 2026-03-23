@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Raja Rani — Royal Deception</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- LOBBY SCREEN -->
+  <div id="screen-lobby" class="screen active">
+    <div class="bg-orbs">
+      <span class="orb orb1"></span>
+      <span class="orb orb2"></span>
+      <span class="orb orb3"></span>
+    </div>
+    <div class="lobby-center">
+      <div class="crown-icon">♛</div>
+      <h1 class="game-title">Raja Rani</h1>
+      <p class="game-subtitle">The Royal Deception</p>
+
+      <div class="card">
+        <div class="input-group">
+          <label>Your Name</label>
+          <input id="player-name" type="text" placeholder="Enter your royal name…" maxlength="18"/>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" id="tab-create" onclick="switchTab('create')">Create Room</button>
+          <button class="tab" id="tab-join" onclick="switchTab('join')">Join Room</button>
+        </div>
+
+        <div id="panel-create" class="tab-panel active">
+          <button class="btn btn-gold" onclick="createRoom()">⚔ Create Room</button>
+        </div>
+
+        <div id="panel-join" class="tab-panel">
+          <div class="input-group">
+            <label>Room Code</label>
+            <input id="room-code-input" type="text" placeholder="Enter room code…" maxlength="6" style="text-transform:uppercase"/>
+          </div>
+          <button class="btn btn-gold" onclick="joinRoom()">🚪 Join Room</button>
+        </div>
+
+        <div id="lobby-error" class="error-msg" style="display:none"></div>
+      </div>
+
+      <div class="roles-preview">
+        <div class="role-chip"><span>👑</span> Raja +5</div>
+        <div class="role-chip"><span>👸</span> Rani +3</div>
+        <div class="role-chip"><span>🚔</span> Police ±10</div>
+        <div class="role-chip"><span>🦹</span> Thief ±10</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WAITING ROOM SCREEN -->
+  <div id="screen-waiting" class="screen">
+    <div class="bg-orbs">
+      <span class="orb orb1"></span><span class="orb orb2"></span>
+    </div>
+    <div class="waiting-container">
+      <div class="room-header">
+        <div>
+          <p class="room-label">Room Code</p>
+          <h2 class="room-code-display" id="display-room-code">—</h2>
+          <button class="copy-btn" onclick="copyRoomCode()">📋 Copy Code</button>
+        </div>
+        <div class="round-badge">Round <span id="header-round">0</span></div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <h3 class="panel-title">⚔ Players <span id="player-count">(0)</span></h3>
+          <ul id="player-list" class="player-list"></ul>
+          <p id="min-players-hint" class="hint">Need at least 4 players</p>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title">🏆 Scoreboard</h3>
+          <ul id="score-list" class="score-list"></ul>
+        </div>
+      </div>
+
+      <div id="host-controls" class="host-controls" style="display:none">
+        <button class="btn btn-gold" id="btn-start" onclick="startGame()">⚔ Start Game</button>
+        <button class="btn btn-outline" onclick="resetGame()">↺ Reset Scores</button>
+      </div>
+      <div id="waiting-msg" class="waiting-msg">Waiting for host to start…</div>
+
+      <div id="room-error" class="error-msg" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ROLE REVEAL SCREEN -->
+  <div id="screen-role" class="screen">
+    <div class="bg-orbs dark">
+      <span class="orb orb1"></span><span class="orb orb2"></span><span class="orb orb3"></span>
+    </div>
+    <div class="role-center">
+      <p class="phase-label">Round <span id="role-round-num">1</span> — Your Role</p>
+      <div class="role-card" id="role-card">
+        <div class="role-card-inner">
+          <div class="role-card-front">?</div>
+          <div class="role-card-back">
+            <div class="role-emoji" id="role-emoji">👑</div>
+            <div class="role-name" id="role-name">Raja</div>
+          </div>
+        </div>
+      </div>
+      <div class="police-reveal" id="police-reveal"></div>
+      <p class="countdown-text">Police selection begins in <span id="countdown">5</span>s…</p>
+    </div>
+  </div>
+
+  <!-- POLICE PICK SCREEN -->
+  <div id="screen-police" class="screen">
+    <div class="bg-orbs">
+      <span class="orb orb1"></span><span class="orb orb2"></span>
+    </div>
+    <div class="police-container">
+      <div class="phase-header">
+        <div class="phase-icon">🚔</div>
+        <h2 id="police-instruction">Police is choosing…</h2>
+        <p id="police-subtext"></p>
+      </div>
+      <ul id="suspect-list" class="suspect-list"></ul>
+      <div id="police-error" class="error-msg" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="screen-result" class="screen">
+    <div class="bg-orbs">
+      <span class="orb orb1"></span><span class="orb orb2"></span><span class="orb orb3"></span>
+    </div>
+    <div class="result-container">
+      <div class="result-verdict" id="result-verdict"></div>
+      <h2 class="result-title" id="result-title"></h2>
+      <p class="result-subtitle" id="result-subtitle"></p>
+
+      <div class="result-grid" id="result-grid"></div>
+
+      <div class="scoreboard-section">
+        <h3 class="panel-title">🏆 Total Scores</h3>
+        <ul id="result-score-list" class="score-list big"></ul>
+      </div>
+
+      <div id="result-host-controls" style="display:none;text-align:center;margin-top:24px">
+        <button class="btn btn-gold" onclick="nextRound()">▶ Next Round</button>
+        <button class="btn btn-outline" onclick="resetGame()">↺ End Game</button>
+      </div>
+      <div id="result-guest-msg" class="waiting-msg" style="display:none">Waiting for host…</div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
